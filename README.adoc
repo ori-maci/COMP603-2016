@@ -1,12 +1,54 @@
 = Compiler Design
 
+== May 14: Lab 1: Read source
+
+=== Lab 1
+
+Do this individually, or in pairs.
+
+NOTE: If working in a pair, run `./main.sh` from your repo. Log in and click on the added collaborator link.
+Then, go to the next page and copy the command line instructions.
+
+. Choose a single compiler implementation to review (suggestions welcome!)
+
+  * https://github.com/chaoslawful/tcc[Tiny C compiler]
+  * https://github.com/mirrors/gcc[GCC (Compiler for C/C++)]
+  * https://github.com/llvm-mirror/llvm[LLVM (Compiler for C/C++)]
+  * https://github.com/openjdk-mirror/jdk7u-jdk[OpenJDK (Compiler and runtime for Java)]
+  * https://github.com/python/cpython[CPython]
+  * https://bitbucket.org/pypy/pypy[PyPy]
+  * https://github.com/php/php-src[PHP]
+  * https://github.com/LuaDist/lua[Lua]
+  * https://github.com/ghc/ghc[GHC source (Haskell)]
+  * https://github.com/ghcjs/ghcjs[GHCJS (Haskell to Javascript compiler)]
+  * https://github.com/mozilla/rhino[Java implementation of Javascript]
+  * https://github.com/mono/mono[C# compiler and runtime]
+
+. Identify which files/functions are responsible for each phase in the compiler source (scan/lex/tokenize, parse, AST, optimization, code generation).
+. What was the most ridiculous thing you found? (funny comments? awful code?)
+. Take notes along the way (if you find something that's unrelated to a compiler phase, try to infer what it's doing).
+. Write up your findings in a short document and post to your repository (no more than two pages, please). For example:
++
+----
+git add findings.txt
+git commit -m "Lab 1 findings."
+git push origin master
+----
+
+Try to get this done today.
+
+=== Further reading
+
+* https://www.ece.cmu.edu/~ganger/712.fall02/papers/p761-thompson.pdf[Reflections on Trusting Trust]
+* https://www.schneier.com/blog/archives/2006/01/countering_trus.html[Countering "Trusting Trust"]
+
 == May 13: Chomsky, Derivatives, Compilers and Visitors, oh my!
 
 === Chomsky again
 
 The Chomsky hierarchy is a containment hierarchy of languages.
-What distinguishes one language category from another is
-restrictions placed on grammars or the underlying automaton.
+Restrictions placed on grammar production rules
+(or the underlying automaton) distinguish among language categories.
 
 image:http://lawrancej.github.io/COMP603-2015/scribbles/chomsky-hierarchy.png[Chomsky hierarchy]
 
@@ -14,24 +56,36 @@ image:http://lawrancej.github.io/COMP603-2015/scribbles/chomsky-hierarchy.png[Ch
 |===
 
 |Language category
-|Description
+|Restrictions on grammar productions
 |Equivalent automaton
 
 |*Recursively-enumerable*
-|Arbitrary sequences of terminals and non-terminals can derive arbitrary sequences of terminals and nonterminals.
-|Finite automaton with infinite tape and read/write head (Turing machine)
+|*None*. Sequences of terminals and non-terminals may derive sequences of terminals and nonterminals.
+|Finite automaton with infinite tape (Turing machine)
 
 |*Context-sensitive*
-|A nonterminal flanked on either side by terminals and nonterminals (the context) derives a nonempty string of terminals or nonterminals surrounded by the same context.
-|Finite automaton with finite tape and read/write head (Linearly-bounded Turing machine)
+|The same *context* (terminals or nonterminals) surrounds both sides of the nonterminal on the left, and the derivation on the right.
+|Finite automaton with finite tape (Linearly-bounded Turing machine)
 
 |*Context-free*
-|Nonterminals derive sequences of terminals and nonterminals.
-|Pushdown automaton (finite state machine with a stack)
+|A nonterminal derives sequences of terminals and nonterminals.
+|Finite automaton with a stack (Pushdown automaton)
+
+|*LR*
+|Context-free but *forbids ambiguity*.
+|Shift-reduce (bottom up) parser
+
+|*LL*
+|Context-free, the first and follow sets are disjoint, and forbids: ambiguity, left-recursion, and common prefixes.
+|Recursive descent (top down) parser
 
 |*Regular*
-|A nonterminal can derive a terminal followed by a nonterminal or nothing at all.
-|Finite state machine
+|A nonterminal may derive either terminals followed by a single nonterminal, or the empty string.
+|Finite automaton
+
+|*Finite*
+|A nonterminal may derive terminals or the empty string.
+|Finite automaton without cycles.
 
 |===
 
@@ -82,11 +136,12 @@ the *back-end* consists of translation, optimization and code generation.
 
 === Visitors
 
-They visit, silly!
+Visitors visit (traverse) nodes in a tree to do some computation,
+without mixing computation into the nodes themselves.
 
 === Challenge
 
-Challenge: What's the parse tree for `int a = 5;`?
+Challenge: What's the parse tree for `int a = 5;` using the C Grammar?
 
 == May 11: Regexes and Grammars
 
