@@ -1,0 +1,81 @@
+COMP603-2015
+5/14/2015
+Lab 1: Read Source
+
+
+1. Compiler: GCC (C/C++ compiler) (Github link: https://github.com/gcc-mirror/gcc)
+
+
+It appears that at the topmost level: https://github.com/gcc-mirror/gcc/tree/master/gcc is the directory containing all parts of the compiler for multiple aspect of GCC.
+
+Do we include headers as well?  
+
+
+
+Top level file:  https://github.com/gcc-mirror/gcc/blob/master/gcc/gcc.c
+
+2.
+
+Scan/lex/tokenize:
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/charset.c (c++)
+https://github.com/gcc-mirror/gcc/blob/master/gcc/cp/lex.c (c++)
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-objc-common.c
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/charset.c (c++)
+
+parse:
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-parser.c
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-typeck.c
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/directives.c (c++)
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/expr.c (C++)
+
+
+AST:
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-tree.h
+
+
+Optimization:
+https://github.com/gcc-mirror/gcc/blob/master/gcc/cfgcleanup.c
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-decl.c
+https://github.com/gcc-mirror/gcc/blob/master/gcc/expr.c
+https://github.com/gcc-mirror/gcc/blob/master/gcc/combine.c
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/init.c (c++)
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/internal.h (c++)
+https://github.com/gcc-mirror/gcc/blob/master/gcc/convert.c
+
+Code Generation:
+
+https://github.com/gcc-mirror/gcc/blob/master/gcc/fortran/cpp.c (C++)
+https://github.com/gcc-mirror/gcc/blob/master/gcc/reg-stack.c
+https://github.com/gcc-mirror/gcc/blob/master/gcc/final.c
+
+
+
+3. What was the most ridiculous thing you found? (funny comments? awful code?)
+
+
+How old is this TODO!?: 
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-parser.c
+
+Has a shouldn't happen comment: 
+https://github.com/gcc-mirror/gcc/blob/master/libcpp/expr.c
+
+"
+/* This source file contains "main" for the compiler driver.
+   All of the real work is done within gcc.c; we implement "main"
+   in here for the "gcc" binary so that gcc.o can be used in
+   libgccjit.so.  */
+  "
+
+https://github.com/gcc-mirror/gcc/blob/master/gcc/gcc-main.c
+
+
+
+4. Take notes along the way (if you find something that’s unrelated to a compiler phase, try to infer what it’s doing).
+
+Array notation in C:
+https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-array-notation.c
+
+Lambda?:
+
+https://github.com/gcc-mirror/gcc/blob/master/gcc/cp/lambda.c
+
