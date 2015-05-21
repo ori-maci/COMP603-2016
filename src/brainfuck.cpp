@@ -90,6 +90,9 @@ class Loop : public Container {
         }
 };
 
+
+
+
 /**
  * Program is the root of a Brainfuck program abstract syntax tree.
  * Because Brainfuck is so primitive, the parse tree is the abstract syntax tree.
@@ -106,18 +109,45 @@ class Program : public Container {
  * Modify as necessary and add whatever functions you need to get things done.
  */
 void parse(fstream & file, Container * container) {
-    char c;
-    // How to peek at the next character
-    c = (char)file.peek();
-    // How to print out that character
-    cout << c;
-    // How to read a character from the file and advance to the next character
-    file >> c;
-    // How to print out that character
-    cout << c;
-    // How to insert a node into the container.
-    container->children.push_back(new CommandNode(c));
+
+	char c;
+
+	file >> c;
+	
+    // How to insert a node into the container
+
+	if(c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.'){
+		container->children.push_back(new CommandNode(c));
+	}
+
+	c = (char)file.peek();
+
+	if(c == '['){
+		Loop program;
+		parse(file, & program);
+		container->children.push_back(new Loop(program));	
+		file >> c;
+	}
+
+	c = (char)file.peek();
+	if(c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.'){	
+		parse(file, container);
+	}
 }
+
+
+/*
+Program -> Sequence
+
+Sequence -> Command Sequence
+Sequence -> Loop Sequence
+Sequence -> any other character, ignore (treat as a comment)
+Sequence -> "" (empty string)
+
+Command -> '+' | '-' | '<' | '>' | ',' | '.'
+
+Loop -> '[' Sequence ']'
+*/
 
 /**
  * A printer for Brainfuck abstract syntax trees.
