@@ -112,16 +112,21 @@ void parse(fstream & file, Container * container) {
 
 	char c;
 
-	file >> c;
-	
     // How to insert a node into the container
 
+	//any character else that we don't care about
+	do{
+		file >> c;
+	}while(c != '+' && c != '-' && c != '<' && c != '>' && c != ',' && c != '.' && c != '[' && c != ']');
+	
+	//command case
 	if(c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.'){
 		container->children.push_back(new CommandNode(c));
 	}
 
-	c = (char)file.peek();
 
+	c = (char)file.peek();
+	//loop case
 	if(c == '['){
 		Loop program;
 		parse(file, & program);
@@ -129,6 +134,7 @@ void parse(fstream & file, Container * container) {
 		file >> c;
 	}
 
+	//more stuff case
 	c = (char)file.peek();
 	if(c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.'){	
 		parse(file, container);
