@@ -1,8 +1,17 @@
 = Compiler Design
 
+== May 27: Tree traversal with visitors
+
+http://en.wikipedia.org/wiki/Visitor_pattern[Visits?!? Well, that'd indicate visitors].
+
 == May 22: Moar hints & stuff
 
-See below.
+See updated lab description and hints below.
+
+Also, your favorite language sucks, and here's why.
+
+* https://archive.org/details/wat_destroyallsoftware#[JavaScript and Ruby]
+* http://eev.ee/blog/2012/04/09/php-a-fractal-of-bad-design/[PHP]
 
 == May 21: Lab 2. Parsing Brainfuck
 
