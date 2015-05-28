@@ -187,17 +187,53 @@ class Printer : public Visitor {
         }
 };
 
+class Interpreter : public Visitor {
+    char memory[30000];
+    int pointer;
+    public:
+        void visit(const CommandNode * leaf) {
+            switch (leaf->command) {
+                case INCREMENT:
+                    break;
+                case DECREMENT:
+                    break;
+                case SHIFT_LEFT:
+                    break;
+                case SHIFT_RIGHT:
+                    break;
+                case INPUT:
+                    break;
+                case OUTPUT:
+                    break;
+            }
+        }
+        void visit(const Loop * loop) {
+            for (vector<Node*>::const_iterator it = loop->children.begin(); it != loop->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+        }
+        void visit(const Program * program) {
+            // zero init the memory array
+            // set pointer to zero
+            for (vector<Node*>::const_iterator it = program->children.begin(); it != program->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+        }
+};
+
 int main(int argc, char *argv[]) {
     fstream file;
     Program program;
     Printer printer;
+    Interpreter interpreter;
     if (argc == 1) {
         cout << argv[0] << ": No input files." << endl;
     } else if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             file.open(argv[i], fstream::in);
             parse(file, & program);
-            program.accept(&printer);
+//            program.accept(&printer);
+            program.accept(&interpreter);
             file.close();
         }
     }
