@@ -1,5 +1,3 @@
-
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,81 +6,80 @@ public class AST {
 		<T> T accept (Visitor<T> v);
 	}
 	public interface Visitor<T> {
-		T visit (Loop loop);
-		T visit (Branch branch);
-		T visit (Block block);
+		// Statements go here
 		T visit (Assign assign);
+		T visit (Block block);
+		T visit (Branch branch);
+		T visit (Loop loop);
+		// Expressions
 		T visit (Id id);
 		T visit (Operator op);
-		T visit (Plus op);
-		T visit (Minus op);
-		T visit (Times op);
-		T visit (Divide op);
 		T visit (Number num);
 	}
+	/* Statement nodes */
 	public interface Statement extends Node {}
+	public static class Assign implements Statement {
+		Id variable; Expression value;
+		public Assign (Id variable, Expression value) { this.variable = variable; this.value = value; }
+		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
+	}
+	public static class Block implements Statement {
+		Statement[] statements;
+		public Block (Statement ... statements) { this.statements = statements; }
+		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
+	}
+	public static class Branch implements Statement {
+		Expression predicate; Statement ifBranch; Statement elseBranch;
+		public Branch (Expression p, Statement a, Statement b) { predicate = p; ifBranch = a; elseBranch = b; }
+		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
+	}
+	public static class Loop implements Statement {
+		Expression predicate; Statement body;
+		public Loop (Expression p, Statement body) { predicate = p; this.body = body; }
+		public <T> T accept(Visitor<T> v) { return v.visit(this); }
+	}
+	/* Expression nodes */
 	public interface Expression extends Node {}
 	public static class Id implements Expression {
 		String id;
 		public Id (String id) { this.id = id; }
 		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
 	}
-	public static Id id (String id) { return new Id (id); }
-	public static class Assign implements Statement {
-		Id variable; Expression value;
-		public Assign (Id variable, Expression value) { this.variable = variable; this.value = value; }
+	public static enum Op {
+		MULTIPLY, DIVIDE, SUBTRACT, ADD;
+		public char show() {
+			final String operators = "*/-+";
+			return operators.charAt(this.ordinal());
+		}
+	};
+	public static class Operator implements Expression {
+		final Op op;
+		final Expression left;
+		final Expression right;
+		private Operator (Op op, Expression left, Expression right) {
+			this.op = op;
+			this.left = left;
+			this.right = right;
+		}
 		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
 	}
-	public static Assign assign (Id var, Expression val) { return new Assign (var, val); }
-	public static class Block implements Statement {
-		Statement[] statements;
-		public Block (Statement ... statements) { this.statements = statements; }
-		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
-	}
-	public static Block block (Statement... statements) { return new Block (statements); }
-	public static class Branch implements Statement {
-		Expression predicate; Statement ifBranch; Statement elseBranch;
-		public Branch (Expression p, Statement a, Statement b) { predicate = p; ifBranch = a; elseBranch = b; }
-		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
-	}
-	public static Branch branch (Expression predicate, Statement ifBranch, Statement elseBranch) { return new Branch (predicate, ifBranch, elseBranch); }
-	public static class Loop implements Statement {
-		Expression predicate; Statement body;
-		public Loop (Expression p, Statement body) { predicate = p; this.body = body; }
-		public <T> T accept(Visitor<T> v) { return v.visit(this); }
-	}
-	public static Loop loop (Expression predicate, Statement body) { return new Loop (predicate, body); }
 	public static class Number implements Expression {
 		int n;
 		public Number (int n) { this.n = n; }
 		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
 	}
+	/* Builders */
+	public static Assign assign (Id var, Expression val) { return new Assign (var, val); }
+	public static Block block (Statement... statements) { return new Block (statements); }
+	public static Branch branch (Expression predicate, Statement ifBranch, Statement elseBranch) { return new Branch (predicate, ifBranch, elseBranch); }
+	public static Loop loop (Expression predicate, Statement body) { return new Loop (predicate, body); }
+	public static Id id (String id) { return new Id (id); }
+	public static Operator plus (Expression left, Expression right) { return new Operator (Op.ADD, left, right); }
+	public static Operator minus (Expression left, Expression right) { return new Operator (Op.SUBTRACT, left, right); }
+	public static Operator times (Expression left, Expression right) { return new Operator (Op.MULTIPLY, left, right); }
+	public static Operator dividedBy (Expression left, Expression right) { return new Operator (Op.DIVIDE, left, right); }
 	public static Number number (int n) { return new Number (n); }
-	public static class Operator implements Expression {
-		Expression left; Expression right; 
-		private Operator (Expression left, Expression right) {this.left = left; this.right = right; }
-		public <T> T accept(Visitor<T> v) { return v.visit(this); }		
-	}
-	public static class Plus extends Operator {
-		public Plus(Expression left, Expression right) { super(left, right); }
-		public <T> T accept(Visitor<T> v) { return v.visit(this); }
-	}
-	public static Plus plus (Expression left, Expression right) { return new Plus (left, right); }
-	public static class Minus extends Operator {
-		public Minus (Expression left, Expression right) { super(left, right); }
-		public <T> T accept (Visitor<T> v) { return v.visit(this); }
-	}
-	public static Minus minus (Expression left, Expression right) { return new Minus (left, right); }
-	public static class Times extends Operator {
-		public Times (Expression left, Expression right) { super(left, right); }
-		public <T> T accept (Visitor<T> v) { return v.visit(this); }
-	}
-	public static Times times (Expression left, Expression right) { return new Times (left, right); }
-	public static class Divide extends Operator {
-		public Divide (Expression left, Expression right) { super(left, right); }
-		public <T> T accept (Visitor<T> v) { return v.visit(this); }
-	}
-	public static Divide divide (Expression left, Expression right) { return new Divide (left, right); }
+	/* Visitors */
 	public static class ExpressionInterpreter implements Visitor<Integer> {
 		Map<String, Integer> symbols;
 		public ExpressionInterpreter(Map<String, Integer> symbols) {
@@ -94,19 +91,13 @@ public class AST {
 			else return 0;
 		}
 		public Integer visit(Operator op) {
-			return null;
-		}
-		public Integer visit(Plus op) {
-			return op.left.accept(this) + op.right.accept(this);
-		}
-		public Integer visit(Minus op) {
-			return op.left.accept(this) - op.right.accept(this);
-		}
-		public Integer visit(Times op) {
-			return op.left.accept(this) * op.right.accept(this);
-		}
-		public Integer visit(Divide op) {
-			return op.left.accept(this) * op.right.accept(this);
+			switch(op.op) {
+			case ADD:      return op.left.accept(this) + op.right.accept(this);
+			case DIVIDE:   return op.left.accept(this) / op.right.accept(this);
+			case MULTIPLY: return op.left.accept(this) * op.right.accept(this);
+			case SUBTRACT: return op.left.accept(this) - op.right.accept(this);
+			default:       return null;
+			}
 		}
 		public Integer visit(Number num) {
 			return num.n;
@@ -142,22 +133,73 @@ public class AST {
 		}
 		public Void visit(Id id) { return null; }
 		public Void visit(Operator op) { return null; }
-		public Void visit(Plus op) { return null; }
-		public Void visit(Minus op) { return null; }
-		public Void visit(Times op) { return null; }
-		public Void visit(Divide op) { return null; }
 		public Void visit(Number num) { return null; }
 	}
+	public static class Printer implements Visitor<StringBuilder> {
+		StringBuilder builder = new StringBuilder();
+		int tabs = 0;
+		public StringBuilder visit(Assign assign) {
+			assign.variable.accept(this);
+			builder.append(" = ");
+			assign.value.accept(this);
+			builder.append(";\n");
+			return builder;
+		}
+		public StringBuilder visit(Block block) {
+			for (int i = 0; i < tabs; i++) {
+				builder.append("    ");
+			}
+			builder.append("{\n");
+			tabs++;
+			for (Statement s : block.statements) {
+				for (int i = 0; i < tabs; i++) {
+					builder.append("    ");
+				}
+				s.accept(this);
+			}
+			tabs--;
+			for (int i = 0; i < tabs; i++) {
+				builder.append("    ");
+			}
+			builder.append("}\n");
+			return null;
+		}
+		public StringBuilder visit(Branch branch) {
+			builder.append("if (");
+			branch.predicate.accept(this);
+			builder.append(")\n");
+			branch.ifBranch.accept(this);
+			builder.append("else\n");
+			branch.elseBranch.accept(this);
+			return builder;
+		}
+		public StringBuilder visit(Loop loop) {
+			builder.append("while (");
+			loop.predicate.accept(this);
+			builder.append(" != 0)\n");
+			loop.body.accept(this);
+			return builder;
+		}
+		public StringBuilder visit(Id id) {
+			builder.append(id.id);
+			return builder;
+		}
+		public StringBuilder visit(Operator op) {
+			builder.append("(");
+			op.left.accept(this);
+			builder.append(" ");
+			builder.append(op.op.show());
+			builder.append(" ");
+			op.right.accept(this);
+			builder.append(")");
+			return builder;
+		}
+		public StringBuilder visit(Number num) {
+			builder.append(num.n);
+			return builder;
+		}
+	}
 	public static void main (String[] args) {
-		/*
-		 * Example program from book
-		 */
-		Node program = branch(plus(id("x"),id("y")),
-						block(
-								loop(id("z"),
-										assign(id("z"),plus(id("z"),number(1)))), 
-								assign(id("x"), number(8))),
-				assign(id("z"),number(7)));
 		/*
 		 * Factorial Program equivalent to:
 		 * int factorial = 1;
@@ -168,14 +210,24 @@ public class AST {
 		 * }
 		 */
 		Node factorial = block(
+				// int factorial = 1;
 				assign (id ("factorial"), number(1)),
+				// int i = 5;
 				assign (id ("i"), number(5)),
+				// while (i != 0) {
 				loop (id ("i"),
-						block(assign (id("factorial"),times(id("factorial"), id("i"))),
-							  assign (id ("i"), minus(id("i"), number(1)))))
+						block(
+								// factorial = factorial * i;
+								assign (id("factorial"),times(id("factorial"), id("i"))),
+								// i = i - 1;
+								assign (id ("i"), minus(id("i"), number(1)))))
+				// }
 				);
 		StatementInterpreter runner = new StatementInterpreter();
 		factorial.accept(runner);
+		Printer printer = new Printer();
+		factorial.accept(printer);
+		System.out.println(printer.builder.toString());
 		/* 
 		 * Print the symbols in the interpreter.
 		 */
@@ -183,4 +235,3 @@ public class AST {
 			System.out.format("%s: %d\n", s, runner.symbols.get(s));
 	}
 }
-
