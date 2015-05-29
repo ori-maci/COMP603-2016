@@ -206,7 +206,7 @@ class Interpreter : public Visitor {
 					pointer++;
                     break;
                 case INPUT:
-					cin >> memory[pointer];
+					cin.get(memory[pointer]);
                     break;
                 case OUTPUT:
 					cout << memory[pointer];
@@ -223,10 +223,11 @@ class Interpreter : public Visitor {
         void visit(const Program * program) {
             // zero init the memory array
             // set pointer to zero
-			for(int i =0; i< 30000; i++){
+			for(int i =0; i <= 30000; i++){
 				memory[i] = 0;
 			}
 			pointer = 0;
+
             for (vector<Node*>::const_iterator it = program->children.begin(); it != program->children.end(); ++it) {
                 (*it)->accept(this);
             }
