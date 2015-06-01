@@ -1,16 +1,57 @@
 = Compiler Design
 
+== June 1: Let's write a compiler (sorta)
+
+=== Announcements
+
+Lab 3 has a new test program, `echo.bf` that just prints out what you type when run.
+`rot13.bf` may not actually work as advertised, derp.
+
+Let's talk about http://en.wikipedia.org/wiki/Quine_%28computing%29[quines].
+And https://github.com/mame/quine-relay[quine relays].
+
+I added `quine.bf` to test lab 3 using the `is-lab-2-done.sh` script because I'm that lazy.
+
+=== Preliminaries
+
+----
+git commit -am "WIP" # Commit your stuff if you need to
+git merge upstream/lab3
+git mergetool # if you see a CONFLICT
+----
+
+=== Activity
+
+. Copypasta the `Printer` visitor in `src/brainfuck.cpp`.
+. Rename it to `Compiler`.
+. Instead of printing out Brainfuck code, print out equivalent code for a different language.
+For languages that need it (e.g., Java), pick a name for your program class (e.g., `Default`).
+
+For example, in Java:
+
+----
+./brainfuck.exe echo.bf > Default.java # Translate brainfuck to java
+javac Default.java # Compile translated Java code
+java Default # Run translated Java bytecode (it should do what echo.bf does)
+----
+
+Done!
+
 == May 29: Parsing frameworks
 
 NOTE: Read http://www.ethoberon.ethz.ch/WirthPubl/CBEAll.pdf[Read through chapter 5].
 
+NOTE: In Lab 3, use `cin.get(mumble)` to read in a char, `cin >> mumble` ignores spaces.
+
 === Parser generators
 
-There are many of them. Here's one for Java.
+A parser generator is a tool that takes a grammar specification in a file, and produces parse code.
 
-A tool that takes a grammar specification in a file, and produces parse code.
+http://en.wikipedia.org/wiki/Comparison_of_parser_generators[There are many of them].
+Each has severe limitations.
+Since these require a grammar spec, you need to understand the grammar's grammar.
 
-Examples: http://www.antlr.org/[ANTLR]
+Here's one for Java. http://www.antlr.org/[ANTLR]
 
 === Parser combinators
 
@@ -53,13 +94,13 @@ The program works when it prints out `Hello World!` for `helloworld.bf`
 
 Study `in-class/AST.java` to get an idea of what you'll need to do.
 
-Or, try a program that takes in input, such as `rot13.bf`.
-If you type in `HELLO` (and press Enter), it will print: `URYYB`.
+Or, try a program that takes in input, such as `echo.bf`.
+If you type in `HELLO` (and press Enter), it will print: `HELLO`.
 
 ----
-./brainfuck.exe rot13.bf
+./brainfuck.exe echo.bf
 HELLO
-URYYB
+HELLO
 ----
 
 == May 27: Tree traversal with visitors
