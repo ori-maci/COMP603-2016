@@ -10,7 +10,7 @@ array[pointer]++;
 while (array[pointer] == 1){ 
 pointer++;
 array[pointer] = (byte)System.in.read();
-System.out.println(array[pointer]);
+System.out.print((char)array[pointer]);
 pointer--;
 }
 }

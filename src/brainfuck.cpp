@@ -196,7 +196,7 @@ class JavaCompiler : public Visitor {
                 case SHIFT_LEFT:  cout << "pointer--;\n"; break;
                 case SHIFT_RIGHT: cout << "pointer++;\n"; break;
                 case INPUT:       cout << "array[pointer] = (byte)System.in.read();\n"; break;
-                case OUTPUT:      cout << "System.out.println(array[pointer]);\n"; break;
+                case OUTPUT:      cout << "System.out.print((char)array[pointer]);\n"; break;
             }
         }
         void visit(const Loop * loop) {
