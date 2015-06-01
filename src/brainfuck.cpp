@@ -187,6 +187,41 @@ class Printer : public Visitor {
         }
 };
 
+class JavaCompiler : public Visitor {
+    public:
+        void visit(const CommandNode * leaf) {
+            switch (leaf->command) {
+                case INCREMENT:   cout << "array[pointer]++;\n"; break;
+                case DECREMENT:   cout << "array[pointer]--;\n"; break;
+                case SHIFT_LEFT:  cout << "pointer--;\n"; break;
+                case SHIFT_RIGHT: cout << "pointer++;\n"; break;
+                case INPUT:       cout << "array[pointer] = (byte)System.in.read();\n"; break;
+                case OUTPUT:      cout << "System.out.println(array[pointer]);\n"; break;
+            }
+        }
+        void visit(const Loop * loop) {
+            cout << "while (array[pointer] == 1){ \n";
+            for (vector<Node*>::const_iterator it = loop->children.begin(); it != loop->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+            cout << "}\n";
+        }
+        void visit(const Program * program) {
+			cout << "import java.util.Scanner;\n";
+			cout << "import java.io.IOException;\n\n";
+			cout << "public class Default {\n";
+			cout << "public static void main(String[] args) throws IOException {\n";
+			cout << "Scanner input = new Scanner(System.in);\n";
+			cout << "byte[] array = new byte[30000];\n";
+			cout << "int pointer = 0;\n";
+            for (vector<Node*>::const_iterator it = program->children.begin(); it != program->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+			cout << "}\n";
+            cout << "}\n";
+        }
+};
+
 class Interpreter : public Visitor {
     char memory[30000];
     int pointer;
@@ -238,6 +273,7 @@ int main(int argc, char *argv[]) {
     fstream file;
     Program program;
     Printer printer;
+	JavaCompiler compiler;
     Interpreter interpreter;
     if (argc == 1) {
         cout << argv[0] << ": No input files." << endl;
@@ -246,7 +282,8 @@ int main(int argc, char *argv[]) {
             file.open(argv[i], fstream::in);
             parse(file, & program);
 //            program.accept(&printer);
-            program.accept(&interpreter);
+         //   program.accept(&interpreter);
+			program.accept(&compiler);
             file.close();
         }
     }
