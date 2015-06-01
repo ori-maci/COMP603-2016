@@ -16,6 +16,7 @@ I added `quine.bf` to test lab 3 using the `is-lab-2-done.sh` script because I'm
 
 ----
 git commit -am "WIP" # Commit your stuff if you need to
+git fetch upstream
 git merge upstream/lab3
 git mergetool # if you see a CONFLICT
 ----
@@ -36,6 +37,19 @@ java Default # Run translated Java bytecode (it should do what echo.bf does)
 ----
 
 Done!
+
+For example, to C:
+
+----
+git fetch upstream
+git merge upstream/brainfuck2c
+git mergetool
+cd src
+g++ brainfuck.cpp -o brainfuck.exe
+./brainfuck.exe echo.bf > echo.c # translate brainfuck to C
+gcc echo.c -o myecho.exe
+myecho.exe # The compiled executable form of echo.bf
+----
 
 == May 29: Parsing frameworks
 
