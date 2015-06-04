@@ -113,37 +113,37 @@ class Program : public Container {
  * Modify as necessary and add whatever functions you need to get things done.
  */
 void parse(fstream & file, Container * container) {
-	Loop * program;
-
+	Loop * program; // Our loop object
 	char c;
 	int count;
     // How to insert a node into the container
 
 	while (file >> c) {
-		count = 1;
+		count = 1; // reset count
 		//command case
 		if(c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.'){
-			while(((char)file.peek()) == c){
-				file >> c;
-				count++;
+			while(((char)file.peek()) == c){ // Squash down repeats, aka +++ -> Node with + and count = 3
+				file >> c; // move file pointer
+				count++; // increase
 			}
-			container->children.push_back(new CommandNode(c,count));
+			container->children.push_back(new CommandNode(c,count)); //add our node to the tree
 		}
-		//loop case
-		else if(c == '['){
-			program = new Loop();
-			parse(file, program);
-	/*		if (program->children.size() == 1) {
-				CommandNode* child = dynamic_cast<CommandNode*>(program->children.front());
-				if (child->command == INCREMENT || child->command == DECREMENT) {
-					container->children.push_back(new CommandNode('z',1));
+		else if(c == '['){  // Loop case
+			program = new Loop(); // Create new loop object
+			parse(file, program); // Parse the inside of the loop
+			if (program->children.size() == 1) { // If we have only one object inside the loop, check for special cases.
+				CommandNode* child = dynamic_cast<CommandNode*>(program->children.front());  // 
+				if (child->command == INCREMENT || child->command == DECREMENT) { // If loop is either [+] or [-]
+					container->children.push_back(new CommandNode('z',1)); // Add special ZERO node.
+					delete program; // Avoid lingering loop objects
+				} else {
+					container->children.push_back(program);	// Normal non-special loop with size one.
 				}
-			}else{ */
-				container->children.push_back(program);	
-	/*		}
-			file >> c; */
+			}else{
+				container->children.push_back(program);	 //Add a normal non-special loop to the tree.
+			}
 		}
-		else if (c == ']') {
+		else if (c == ']') { //end of loop object
 			return;
 		}
 		
@@ -301,8 +301,8 @@ int main(int argc, char *argv[]) {
         for (int i = 1; i < argc; i++) {
             file.open(argv[i], fstream::in);
             parse(file, & program);
-          // program.accept(&printer);
-            program.accept(&interpreter);
+         //  program.accept(&printer);
+           program.accept(&interpreter);
 		 //	program.accept(&compiler);
             file.close();
         }
