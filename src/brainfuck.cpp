@@ -1,4 +1,4 @@
-/*
+/* Joseph Walker
 = Brainfuck
 
 If you have gcc:
