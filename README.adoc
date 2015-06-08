@@ -1,5 +1,171 @@
 = Compiler Design
 
+IMPORTANT: June 18 midterm is coming.
+
+== June 8: SSA and GC
+
+=== Single static assignment (SSA) Form
+
+http://en.wikipedia.org/wiki/Static_single_assignment_form[SSA] is a transformation on code that is a prerequisite for many low-level optimizations, such as dead/duplicate code elimination.
+Think of it like version control for variables.
+Each variable gets a new version number when an assignment is made, hence single assignment.
+If we have multiple branches (i.e., loops or conditionals), we need to merge different variable versions together (denoted by the phi function).
+
+|===
+
+|Pseudocode |SSA form
+
+a|Basic block:
+
+----
+a = 5
+a = a + 10
+print a
+----
+
+a|SSA Basic block:
+
+----
+a_0 = 5
+a_1 = a_0 + 10
+print a_1
+----
+
+a|Conditional
+
+----
+a = 5
+if (a < 10) {
+   a++
+} else {
+   a--
+}
+a = a * 2
+print a
+----
+
+a|SSA conditional
+
+----
+a_0 = 5
+if (a_0 < 10) {
+   a_1 = a_0 + 1
+} else {
+   a_2 = a_0 - 1
+}
+a_3 = phi(a_1,a_2) * 2
+print a_3
+----
+
+|===
+
+=== Garbage collection
+
+Ah memory management. Regardless of how it happens, it must happen, unless you like leaking memory.
+
+It helps to remember modern computer systems give us three kinds of memory:
+
+* Static memory
+* Stack memory
+* Heap memory
+
+Static memory is pretty straighforward: it's a chunk of memory that comes and goes with the program itself, and thus does not grow or shrink over the lifetime of the program.
+Stack memory is managed using, ahem, a stack. (Who'da thunk it?)
+
+When we think of memory management, we're almost certainly thinking about the heap: dynamically-allocated memory from the operating system with no pre-set lifespan.
+Therefore, either the programmer has to specify when the memory is no longer needed, or we can rely on garbage collector to clean up after our mess.
+
+Garbage collection algorithms must know the difference between pointer and an integer.
+This is why C doesn't have it.
+Just kidding, you can do garbage collection in C, but it must be *conservative*: it can't make guarantees that it collected all the garbage.
+
+==== Reference counting
+Strategy::
+  Just count how many things point to this object, and when that count drops to 0, free the object.
+
+Pros::
+* Simple to implement
+* Reasonably fast
+* Reasonably good (if Python uses it, it must be somewhat good)
+
+Cons::
+* Now, every object has to have an extra integer just for the reference count.
+* What happens when you got two objects pointing to each other (like in a circular linked list)? Crap! The reference count never drops to zero, that's what!
+
+==== Tracing (Mark sweep) garbage collection
+There's many variations of http://en.wikipedia.org/wiki/Tracing_garbage_collection[tracing (mark-sweep) garbage collection].
+
+Strategy::
+. Maintain a root set (a set of objects reachable throughout the program and in the current scope of the program).
+. Traverse (trace) the object graph starting from the root set, looking for garbage (objects unreachable from the root set)
+
+Pros::
+* This can deal properly with all garbage, including circular linked lists that nobody else references
+* No space overhead of reference counts
+
+Cons::
+* Naive implementations are slow, and briefly hang programs
+* Not what you'd use when precise timing is important (e.g., launching a rocket, autonomous cars)
+* Essentially, this algorithm is what gave garbage collection its bad reputation
+
+Naive mark sweep::
+  Tracing garbage collection that runs when we're out of memory, and stops the program during garbage collection.
+
+Concurrent/incremental mark sweep::
+  The program still runs during GC (which happens in a separate thread), but marked objects are locked as necessary.
+
+Generational::
+Most objects on the heap are short-lived: they're dynamically allocated and freed almost right away.
+Other objects, fewer in number, live long, productive and happy lives.
+This form of GC moves reachable objects between two or more memory pools called generations, without touching garbage.
+
+NOTE: Good compilers will optimize away as much heap allocation as possible using http://en.wikipedia.org/wiki/Escape_analysis[escape analysis], checking at compile time to see if an object could be referenced outside a function. If not, allocate on the stack.
+
+
+
+== June 5: Symbol tables, type checking
+
+Before we begin... http://ridiculousfish.com/blog/posts/will-it-optimize.html[Will it optimize?]
+http://www.malevole.com/mv/misc/killerquiz/[Programming language inventor or serial killer]?
+Also, https://fatiherikli.github.io/programming-language-network/[The programming language network]
+
+=== Symbol tables
+A map among identifiers, scopes and other information (e.g., its type, where it's defined).
+
+* In an interpreter, these can be used for data storage.
+* In a compiler, these are used to generate code.
+
+=== Type checking
+
+Type checking ensures that no types are mismatched.
+
+Strong vs. weak typing::
+How rigidly types are enforced?
+*Strongly-typed* languages enforce types rigidly (e.g., Haskell, Rust, Python).
+*Weakly-typed* languages allow some implicit mismatched type coercion (e.g., PHP, C).
+
+Dynamic vs. Static typing::
+When does type-checking happen?
+*Dynamically-typed* languages check type mismatches at run-time (e.g., Python, Ruby, Javascript).
+*Statically-typed* languages check type mismatches at compile-time (e.g., Java, C++, Haskell), by
+traversing (and decorating) the AST.
+
+How to get this wrong: https://www.destroyallsoftware.com/talks/useing-youre-types-good[Useing you're types good]
+
+=== Memory
+
+Globals::
+Memory that comes preallocated with the program (i.e., global constants or variables, the `data` area in assembly).
+
+Stack::
+Memory allocated on the stack frame (i.e., local variables in a function).
+Deallocation happens on function exit.
+
+Heap::
+Dynamically-allocated memory (i.e., memory allocated with `new` or `malloc`).
+Deallocation happens either manually with `delete` or `free`, or with a garbage collector.
+http://www.rust-lang.org/[Rust] tracks ownership in the type system, allowing the type checker to determine where to place deallocation code at compile time.
+
 == June 4: Lab 4. Optimize Brainfuck
 
 Optimize your compiler and interpreter developed in Lab 3.
